@@ -1,0 +1,283 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <iomanip>
+using namespace::std;
+class Kayit {
+public: 
+	int kayitno;
+	string ad;
+	string soyad;
+	string cep;
+	string is;
+	Kayit(int kayitno,string ad,string soyad,string cep,string is) {
+		this->kayitno = kayitno;
+		this->ad = ad;
+		this->soyad = soyad;
+		this->cep = cep;
+		this->is = is;
+	}
+	Kayit() {
+	}
+	void yazdir() {
+		cout << setfill('-') << setw(16) << this->kayitno << setw(16) << this->ad << setw(16) <<this->soyad << setw(16) 
+			<< this->cep << setw(16) << this->is << &endl;
+	}
+};
+bool kayitvarmi(Kayit kayit) {
+	if (kayit.ad != "") {
+		return true;
+	}
+	else return false;
+}
+class Rehber {
+public:Kayit kayitlar[100];
+public:Rehber(){
+}
+};
+class Telefon :public Rehber {
+public:string sahibiad;
+int no = 0;
+public: Telefon(string ad) {
+	this->sahibiad = ad;
+}
+public: void Oku(string dosya) {
+	fstream dosyaoku;
+	dosyaoku.open(dosya, ios::in);
+	if (dosyaoku.is_open()) {  
+		string tp;
+		no = 0;
+		while (getline(dosyaoku, tp)) {
+			vector <string> tokens;
+			stringstream check1(tp);
+			string intermediate;
+			while (getline(check1, intermediate, ' '))
+			{
+				tokens.push_back(intermediate);
+			}
+			int start = 0;
+			this->kayitlar[no].kayitno = stoi(tokens[0]);
+			this->kayitlar[no].ad = tokens[1];
+			this->kayitlar[no].soyad = tokens[2];
+			this->kayitlar[no].cep = tokens[3];
+			this->kayitlar[no].is = tokens[4];
+			no++;
+		}
+		dosyaoku.close(); 
+	}
+	else {
+		cout << "Dosya Bulunamadi.\n";
+	}
+}
+public: void Yaz(string dosya) {
+	fstream dosyaoku;
+	dosyaoku.open(dosya, ios::out);
+	if (dosyaoku.is_open())
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			if (kayitvarmi(this->kayitlar[i]))
+			{
+				dosyaoku << kayitlar[i].kayitno<<" "<< kayitlar[i].ad << " "<< kayitlar[i].soyad<< " "<<
+					kayitlar[i].cep << " "<< kayitlar[i].is <<"\n";
+			}
+		}
+		dosyaoku.close();
+		cout << "Dosya Guncellendi...\n";
+		Oku("rehber.txt");
+	}
+	else {
+		cout << "Dosya Bulunamadi\n";
+	}
+}
+public: void ekranaYazdir() {
+	sirala();
+	cout <<setfill('-')<< setw(16) << "Kayit No" << setw(16) << "Ad" << setw(16) << "Soyad" << setw(16) << "Cep Tel" << setw(16) << "Is Tel--\n";
+	for (int i = 0; i < 100; i++)
+	{
+		if (kayitvarmi(kayitlar[i]))
+		{
+			kayitlar[i].yazdir();
+		}
+	}
+}
+public: void ekranaYazdir(int filtre,string veri) {
+	if (filtre<1||filtre>4)
+	{
+		cout << "Gecersiz Secim\n";
+		return;
+	}
+	sirala();
+	cout << setfill('-') << setw(16) << "Kayit No" << setw(16) << "Ad" << setw(16) << "Soyad" << setw(16) << "Cep Tel" << setw(16) << "Is Tel--\n";
+	for (int i = 0; i < 100; i++)
+	{
+		if (kayitvarmi(kayitlar[i]))
+		{
+			switch (filtre)
+			{
+			case 1:
+				if (kayitlar[i].ad==veri)
+				{
+					kayitlar[i].yazdir();
+				}
+				break;
+			case 2:
+				if (kayitlar[i].soyad == veri)
+				{
+					kayitlar[i].yazdir();
+				}
+				break;
+			case 3:
+				if (kayitlar[i].cep == veri)
+				{
+					kayitlar[i].yazdir();
+				}
+				break;
+			case 4:
+				if (kayitlar[i].is == veri)
+				{
+					kayitlar[i].yazdir();
+				}
+				break;
+			}
+		}
+	}
+}
+public: void yeniKayit() {
+	
+	cout << "-----Yeni Kayit-----\n-Ad>>";
+	cin >> kayitlar[no].ad;
+	cout << "-Soyad>>";
+	cin >> kayitlar[no].soyad;
+	cout << "-Cep Tel>>";
+	cin >> kayitlar[no].cep;
+	cout << "-Is Tel>>";
+	cin >> kayitlar[no].is;
+	kayitlar[no].kayitno = no + 1;
+	cout << "Kayit Basarili!\nKayit Numarasi: "<<kayitlar[no].kayitno<<&endl;
+	no++;
+}
+public: int kayitBul(int kayitno) {
+	for (int i = 0; i < 100; i++)
+	{
+		if (kayitvarmi(kayitlar[i]))
+		{
+			if (kayitlar[i].kayitno==kayitno)
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+public: void Guncelle() {
+	int kayitno;
+	cout << "Guncellenecek Kayit Numarasini Giriniz\n>>";
+	cin >> kayitno;
+	int id = kayitBul(kayitno);
+	if (id!=-1)
+	{
+		cout << "-----Kayit Guncelle-----\n-Ad>>";
+		cin >> kayitlar[id].ad;
+		cout << "-Soyad>>";
+		cin >> kayitlar[id].soyad;
+		cout << "-Cep Tel>>";
+		cin >> kayitlar[id].cep;
+		cout << "-Is Tel>>";
+		cin >> kayitlar[id].is;
+		kayitlar[no].kayitno = no + 1;
+		cout << "Guncelleme Basarili!\nGuncellenen Kayit Numarasi: " << kayitlar[id].kayitno << &endl;
+		Yaz("rehber.txt");
+	}
+	else {
+		cout << "Bu Kayit Numarasi ile eslesen bir kayit bulunamadi.\n";
+	}
+}
+public: void Sil() {
+	int no;
+	cout << "Silinecek Kayit Numarasini Giriniz\n>>";
+	cin >> no;
+	int id = kayitBul(no);
+	if (id!=-1)
+	{
+		kayitlar[id].kayitno = -1;
+		kayitlar[id].ad = "";
+		kayitlar[id].soyad = "";
+		kayitlar[id].cep = "";
+		kayitlar[id].is = "";
+		cout << "Kayit Silindi.\n";
+		Yaz("rehber.txt");
+	}
+	else {
+		cout << "Bu Kayit Numarasi ile eslesen bir kayit bulunamadi.\n";
+	}
+}
+void sirala() {
+	Kayit temp;
+	for (int i = 0; i < 100; i++)
+	{
+		if (kayitvarmi(kayitlar[i]))
+		{
+			for (int j = i; j < 100; j++)
+			{
+				if (kayitvarmi(kayitlar[j]))
+				{
+					if (kayitlar[i].ad>kayitlar[j].ad)
+					{
+						temp = kayitlar[i];
+						kayitlar[i] = kayitlar[j];
+						kayitlar[j] = temp;
+					}
+				}
+			}
+		}
+	}
+}
+public:void Ara() {
+	cout << "1-Ad'a Gore\n2-Soyad'a Gore\n3-Cep Telefonuna Gore\n4-Is Telefonuna Gore\n0-Geri\n>>";
+	int secim;
+	cin >> secim;
+	string veri;
+	cout << "Filtrelenecek Veri\n>>";
+	cin >> veri;
+	ekranaYazdir(secim, veri);
+}
+};
+int main()
+{
+	Telefon tel("Telefon");
+	tel.Oku("rehber.txt");
+	int secim; 
+	do
+	{
+		cout << "1-Telefon Kaydi Ekle\n2-Kayitlari Listele\n3-Kayitlari Guncelle\n4-Kayitlari Ara\n5-Kayit Sil\n>>";
+		cin >> secim;
+		switch (secim)
+		{
+		case 1:
+			tel.yeniKayit();
+			break;
+		case 2:
+			tel.ekranaYazdir();
+			break;
+		case 3:
+			tel.Guncelle();
+			break;
+		case 4:
+			tel.Ara();
+			break;
+		case 5:
+			tel.Sil();
+			break;
+		case 0:
+			cout << "Gule Gule!";
+			break;
+		default:
+			cout << "Yanlis Secim\n";
+			break;
+		}
+	} while (secim!=0);
+	tel.Yaz("rehber.txt");
+}
